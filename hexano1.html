@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex-ano</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            opacity: 0.9;
+        }
+
+        .control-group input[type="range"] {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .control-group select {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .hex-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 70px);
+            margin-top: 70px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hex-grid {
+            position: relative;
+            padding: 40px;
+        }
+
+        .hex {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hex-content {
+            color: white;
+            font-weight: bold;
+            font-size: 11px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* White keys - lighter colors */
+        .note-C { 
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            box-shadow: 0 3px 12px rgba(255, 255, 255, 0.2);
+            color: #333;
+        }
+        .note-D { 
+            background: linear-gradient(135deg, #f5f5f5, #d0d0d0);
+            box-shadow: 0 3px 12px rgba(245, 245, 245, 0.2);
+            color: #333;
+        }
+        .note-E { 
+            background: linear-gradient(135deg, #fafafa, #d5d5d5);
+            box-shadow: 0 3px 12px rgba(250, 250, 250, 0.2);
+            color: #333;
+        }
+        .note-F { 
+            background: linear-gradient(135deg, #f0f0f0, #c8c8c8);
+            box-shadow: 0 3px 12px rgba(240, 240, 240, 0.2);
+            color: #333;
+        }
+        .note-G { 
+            background: linear-gradient(135deg, #f8f8f8, #d3d3d3);
+            box-shadow: 0 3px 12px rgba(248, 248, 248, 0.2);
+            color: #333;
+        }
+        .note-A { 
+            background: linear-gradient(135deg, #f2f2f2, #cacaca);
+            box-shadow: 0 3px 12px rgba(242, 242, 242, 0.2);
+            color: #333;
+        }
+        .note-B { 
+            background: linear-gradient(135deg, #f6f6f6, #d1d1d1);
+            box-shadow: 0 3px 12px rgba(246, 246, 246, 0.2);
+            color: #333;
+        }
+
+        /* Black keys - darker colors */
+        .note-Csharp { 
+            background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+        .note-Dsharp { 
+            background: linear-gradient(135deg, #333333, #1f1f1f);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+        .note-Fsharp { 
+            background: linear-gradient(135deg, #2a2a2a, #181818);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+        .note-Gsharp { 
+            background: linear-gradient(135deg, #313131, #1d1d1d);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+        .note-Asharp { 
+            background: linear-gradient(135deg, #292929, #171717);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .hex:hover {
+            transform: translateY(-4px) scale(1.08);
+            z-index: 10;
+            filter: brightness(1.15);
+        }
+
+        .hex.active {
+            transform: translateY(-6px) scale(1.12);
+            z-index: 20;
+            filter: brightness(1.3) saturate(1.2);
+            animation: pulse 0.3s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(-6px) scale(1.12); }
+            50% { transform: translateY(-8px) scale(1.16); }
+            100% { transform: translateY(-6px) scale(1.12); }
+        }
+
+        .info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 250px;
+        }
+
+        .info h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info p {
+            margin: 5px 0;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .info .key {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 0 2px;
+        }
+
+        .key-count {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Scrollbar styling */
+        .hex-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .hex-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .hex-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        .hex-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .hex {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .hex-content {
+                font-size: 9px;
+            }
+            
+            .controls {
+                padding: 10px 15px;
+                gap: 20px;
+            }
+            
+            .control-group label {
+                font-size: 10px;
+            }
+            
+            .info {
+                display: none;
+            }
+            
+            .key-count {
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="control-group">
+            <label for="waveform">Wave:</label>
+            <select id="waveform">
+                <option value="sine">Sine</option>
+                <option value="square">Square</option>
+                <option value="sawtooth">Sawtooth</option>
+                <option value="triangle">Triangle</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="volume">Volume:</label>
+            <input type="range" id="volume" min="0" max="100" value="40">
+        </div>
+        <div class="control-group">
+            <label for="attack">Attack:</label>
+            <input type="range" id="attack" min="0" max="100" value="20">
+        </div>
+    </div>
+
+    <div class="hex-container">
+        <div class="hex-grid" id="hexGrid"></div>
+    </div>
+
+    <script>
+        // Audio Context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Note frequencies for full 88-key piano range (A0 to C8)
+        const noteFrequencies = {
+            'A0': 27.50, 'A#0': 29.14, 'B0': 30.87,
+            'C1': 32.70, 'C#1': 34.65, 'D1': 36.71, 'D#1': 38.89, 'E1': 41.20, 'F1': 43.65, 'F#1': 46.25, 'G1': 49.00, 'G#1': 51.91, 'A1': 55.00, 'A#1': 58.27, 'B1': 61.74,
+            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+            'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
+            'C6': 1046.50, 'C#6': 1108.73, 'D6': 1174.66, 'D#6': 1244.51, 'E6': 1318.51, 'F6': 1396.91, 'F#6': 1479.98, 'G6': 1567.98, 'G#6': 1661.22, 'A6': 1760.00, 'A#6': 1864.66, 'B6': 1975.53,
+            'C7': 2093.00, 'C#7': 2217.46, 'D7': 2349.32, 'D#7': 2489.02, 'E7': 2637.02, 'F7': 2793.83, 'F#7': 2959.96, 'G7': 3135.96, 'G#7': 3322.44, 'A7': 3520.00, 'A#7': 3729.31, 'B7': 3951.07,
+            'C8': 4186.01
+        };
+
+        // Create the 88 keys in piano order
+        function create88Keys() {
+            const keys = [];
+            const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+            
+            // Start from A0, go through all notes to C8
+            let currentNote = 0; // Start with A
+            let octave = 0;
+            
+            // Add A0
+            keys.push({ note: 'A', octave: 0, fullNote: 'A0' });
+            
+            // Add A#0
+            keys.push({ note: 'A#', octave: 0, fullNote: 'A#0' });
+            
+            // Add B0
+            keys.push({ note: 'B', octave: 0, fullNote: 'B0' });
+            
+            // Add all octaves from C1 to B7
+            for (octave = 1; octave <= 7; octave++) {
+                for (let i = 3; i < 12; i++) { // Start from C (index 3)
+                    keys.push({ 
+                        note: notes[i], 
+                        octave: octave, 
+                        fullNote: notes[i] + octave 
+                    });
+                }
+            }
+            
+            // Add C8
+            keys.push({ note: 'C', octave: 8, fullNote: 'C8' });
+            
+            return keys;
+        }
+
+        const pianoKeys = create88Keys();
+        const activeOscillators = {};
+
+        // Calculate hexagon position for 88 keys
+        function getHexPosition(index) {
+            const hexWidth = 70;
+            const hexHeight = 60.62; // width * 0.866 for regular hexagon
+            const horizontalSpacing = hexWidth * 0.75;
+            const verticalSpacing = hexHeight * 0.5;
+            
+            // Arrange in a honeycomb pattern
+            const cols = 11;
+            const row = Math.floor(index / cols);
+            const col = index % cols;
+            
+            const x = col * horizontalSpacing + (row % 2) * (horizontalSpacing / 2);
+            const y = row * verticalSpacing;
+            
+            return { x, y };
+        }
+
+        // Create 88-key hexagonal grid
+        function createHexGrid() {
+            const grid = document.getElementById('hexGrid');
+            grid.innerHTML = '';
+            
+            pianoKeys.forEach((key, index) => {
+                const hex = document.createElement('div');
+                hex.className = `hex note-${key.note.replace('#', 'sharp')}`;
+                hex.dataset.note = key.note;
+                hex.dataset.octave = key.octave;
+                hex.dataset.fullNote = key.fullNote;
+                hex.dataset.index = index;
+                
+                const pos = getHexPosition(index);
+                hex.style.left = `${pos.x + 50}px`;
+                hex.style.top = `${pos.y + 50}px`;
+                
+                const hexContent = document.createElement('div');
+                hexContent.className = 'hex-content';
+                hexContent.textContent = key.note;
+                
+                hex.appendChild(hexContent);
+                
+                // Mouse events
+                hex.addEventListener('mousedown', (e) => playNote(e, key.fullNote));
+                hex.addEventListener('mouseup', (e) => stopNote(e, key.fullNote));
+                hex.addEventListener('mouseleave', (e) => stopNote(e, key.fullNote));
+                
+                // Touch events
+                hex.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    playNote(e, key.fullNote);
+                });
+                hex.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    stopNote(e, key.fullNote);
+                });
+                
+                grid.appendChild(hex);
+            });
+            
+            // Set grid size
+            const lastPos = getHexPosition(pianoKeys.length - 1);
+            grid.style.width = `${lastPos.x + 200}px`;
+            grid.style.height = `${lastPos.y + 200}px`;
+        }
+
+        // Play note function
+        function playNote(event, fullNote) {
+            const waveform = document.getElementById('waveform').value;
+            const volume = document.getElementById('volume').value / 100;
+            const attack = document.getElementById('attack').value / 1000;
+            
+            const frequency = noteFrequencies[fullNote];
+            
+            if (activeOscillators[fullNote]) return;
+            
+            // Create oscillator
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = waveform;
+            oscillator.frequency.value = frequency;
+            
+            // Apply ADSR envelope
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + attack);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            activeOscillators[fullNote] = { oscillator, gainNode };
+            
+            // Visual feedback
+            event.currentTarget.classList.add('active');
+        }
+
+        // Stop note function
+        function stopNote(event, fullNote) {
+            if (activeOscillators[fullNote]) {
+                const { oscillator, gainNode } = activeOscillators[fullNote];
+                
+                // Fade out
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                
+                setTimeout(() => {
+                    oscillator.stop();
+                    oscillator.disconnect();
+                    gainNode.disconnect();
+                }, 100);
+                
+                delete activeOscillators[fullNote];
+            }
+            
+            // Remove visual feedback
+            event.currentTarget.classList.remove('active');
+        }
+
+        // Keyboard mapping
+        const keyboardMap = {
+            'a': 'C', 's': 'D', 'd': 'E', 'f': 'F', 'g': 'G', 'h': 'A', 'j': 'B',
+            'w': 'C#', 'e': 'D#', 't': 'F#', 'y': 'G#', 'u': 'A#'
+        };
+
+        // Keyboard events
+        const pressedKeys = new Set();
+        
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keyboardMap[key] && !pressedKeys.has(key)) {
+                pressedKeys.add(key);
+                const noteName = keyboardMap[key];
+                
+                // Find the first matching note in middle range (C4-B4)
+                const matchingKey = pianoKeys.find(k => 
+                    k.note === noteName && k.octave >= 4 && k.octave <= 4
+                );
+                
+                if (matchingKey) {
+                    const hex = document.querySelector(`[data-full-note="${matchingKey.fullNote}"]`);
+                    if (hex) {
+                        playNote({ currentTarget: hex }, matchingKey.fullNote);
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keyboardMap[key]) {
+                pressedKeys.delete(key);
+                const noteName = keyboardMap[key];
+                
+                const matchingKeys = pianoKeys.filter(k => k.note === noteName);
+                matchingKeys.forEach(matchingKey => {
+                    const hex = document.querySelector(`[data-full-note="${matchingKey.fullNote}"]`);
+                    if (hex) {
+                        stopNote({ currentTarget: hex }, matchingKey.fullNote);
+                    }
+                });
+            }
+        });
+
+        // Initialize
+        createHexGrid();
+
+        // Resume audio context on first interaction
+        document.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

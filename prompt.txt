@@ -1,0 +1,10 @@
+Make a single HTML page with everything inline.
+Make a hexagon-tiled piano, with each tile representing a note.
+There should be a bar on top that allows one to Record (circle that fills red when active) that saves a WAV with all the notes played if clicked after active, one to play to replay (show the keys pressed) or stop the previous melody, a wave style dropdown, a volume slider and a fullscreen svg button.
+The notes are colored when pressed and pale colored otherwise.
+
+Keyboard should work too.
+
+if the width is smaller than the height the lower part should rotate.
+
+don't touch their Y position that was correct the X position had a margin though and didn't line up withe their top row

@@ -1,7 +1,7 @@
 # Hexano
 A simple hexagonal piano.
 
-- Vibe coded but it required me to correct the *CSS* and change some thing on the controls.
+- Vibe coded but it required me to correct a few things
 - Everything is packed into a single *HTML* file
 - Let's you pick different kinds of Wave
 - Records the output into a *WAV* file

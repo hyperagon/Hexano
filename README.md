@@ -3,7 +3,7 @@ A simple hexagonal piano.
 
 - Vibe coded but it required me to correct the *CSS* and change some thing on the controls.
 - A single *HTML* file
-- Different kinds of Wave
+- Let's you pick different kinds of Wave
 - Records the output into a *WAV* file
 - Replays what was recorded like a piano roll
 

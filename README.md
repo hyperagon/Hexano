@@ -7,4 +7,6 @@ A simple hexagonal piano.
 - Records the output into a *WAV* file
 - Replays what was recorded like a piano roll
 
+Example: Keyboard Cat 🔴🟢🟣 ([emoji from here.](https://getemoji.com/#symbols))
+
 Inspired by [Hexiano](https://github.com/lrq3000/hexiano).

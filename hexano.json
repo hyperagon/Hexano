@@ -1,0 +1,42 @@
+{
+  "name": "Hexano Melody",
+  "date": "2025-11-17T21:22:20.185Z",
+  "notes": [
+    {
+      "note": "C5",
+      "freq": 523.251,
+      "time": 0,
+      "duration": 300
+    },
+    {
+      "note": "D5",
+      "freq": 587.33,
+      "time": 400,
+      "duration": 300
+    },
+    {
+      "note": "E5",
+      "freq": 659.255,
+      "time": 800,
+      "duration": 300
+    },
+    {
+      "note": "F5",
+      "freq": 698.456,
+      "time": 1200,
+      "duration": 300
+    },
+    {
+      "note": "A5",
+      "freq": 880,
+      "time": 1600,
+      "duration": 600
+    },
+    {
+      "note": "G5",
+      "freq": 783.991,
+      "time": 2200,
+      "duration": 600
+    }
+  ]
+}

@@ -10,6 +10,6 @@ A simple hexagonal piano.
 
 ### Examples ([emoji from here](https://getemoji.com/#symbols))
 - [Keyboard Cat](https://www.youtube.com/watch?v=J---aiyznGQ): 🔴🟢🟣🟢🔴🟢🟣🟢...
-- Hexano : 🔴🟡🟢🔵🟠🟣
+- Hexano : 🔴🟡🟢🔵🟠🟣 🟠🟣🔵🟢🟣🟡
 
 Inspired by [Hexiano](https://github.com/lrq3000/hexiano).

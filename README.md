@@ -1,5 +1,5 @@
 # Hexano
-A simple hexagonal piano.
+A single note hexagonal piano.
 
 - Vibe coded but it required me to correct several things
 - Everything is packed into a single *HTML* file

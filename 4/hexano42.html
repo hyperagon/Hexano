@@ -7,7 +7,7 @@ Human Intervention
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Hexano 4</title>
+    <title>Hexano 4.2</title>
     <style type="text/css">
         /* --- Basic Setup & Theme --- */
         html, body {
@@ -2142,7 +2142,7 @@ Human Intervention
                         /* Add slight detuning for chorus effect */
                         var detune = (Math.random() - 0.5) * 2; /* ±1 cent */
                         oscillator.detune.value = detune;
-0                        oscillator.frequency.value = freq;
+                        oscillator.frequency.value = freq;
                         
                         /* Create gentle vibrato */
                         var vibratoLFO = audioContext.createOscillator();
@@ -3902,4 +3902,3 @@ function findNearestNote(frequency) {
     </div>
 </body>
 </html>
-```

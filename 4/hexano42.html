@@ -650,7 +650,7 @@ Human Intervention
             /* --- INSTRUMENT SYSTEM --- */
             var currentInstrument = 'none';
             var instruments = {
-                'ddefault': {
+                'default': {
                     name: 'Default',
                     playNote: function(note, freq) {
                         /* Default implementation */
@@ -1926,7 +1926,7 @@ Human Intervention
                     /* Much lower noise volume */
                     noiseGain.gain.value = 0.005; /* Further reduced */
                     
-                    /* Connect the audio graph
+                    /* Connect the audio graph */
                     oscillator.connect(gainNode);
                     noiseBuffer.connect(noiseGain);
                     gainNode.connect(mainGainNode);
@@ -2152,7 +2152,12 @@ Human Intervention
                         vibratoGain.gain.value = vibratoAmount * 0.3; /* Very reduced vibrato */
                         
                         vibratoLFO.connect(vibratoGain);
-                        vibratoGain.connect(oscillator.frequency);
+                        // Only connect vibrato if oscillator.frequency is available
+                        if (oscillator.frequency) {
+                            vibratoGain.connect(oscillator.frequency);
+                        } else {
+                            console.warn("oscillator.frequency not available, skipping vibrato");
+                        }
                         
                         /* Create gain for this voice */
                         var voiceGain = audioContext.createGain();

@@ -20,4 +20,5 @@ A single note hexagonal piano.
 
 Inspired by [Hexiano](https://github.com/lrq3000/hexiano).
 
+### Donate
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q41PQGEG)

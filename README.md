@@ -19,3 +19,5 @@ A single note hexagonal piano.
 - [Sonic - Starlight Zone](https://www.youtube.com/watch?v=NVoNyufMUpo): F#4-G#4-G5-E5-E5-F5-G5-A5-...
 
 Inspired by [Hexiano](https://github.com/lrq3000/hexiano).
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q41PQGEG)

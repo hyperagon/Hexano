@@ -1,0 +1,484 @@
+Turn this into an Instrument class named 8bit, make sure to modify the method names to those in single-line commets.
+
+            'default': {
+                name: 'Default',
+                playNote: function(note, freq) {
+                    /* Default implementation */
+                    return playDefaultNote(note, freq);
+                },
+                stopNote: function(note) {
+                    /* Default implementation */
+                    return stopDefaultNote(note);
+                },
+                init: function() {
+                    /* Default implementation */
+                    return;
+                }
+            },
+
+            // play
+            function playDefaultNote(note, freq) {
+                try {
+                    var now = audioContext.currentTime;
+                    var gainValue = 0.15;
+
+                    var oscillator = audioContext.createOscillator();
+                    var gainNode = audioContext.createGain();
+
+                    /* Get wave type from the selected wave option */
+                    var selectedWave = document.querySelector('.wave-option.selected');
+                    if (selectedWave) {
+                        oscillator.type = selectedWave.getAttribute('data-wave-type');
+                    } else {
+                        /* Default to sine if nothing is selected */
+                        oscillator.type = 'sine';
+                    }
+                    
+                    /* Round frequency to 3 decimal places */
+                    var roundedFreq = Math.round(freq * 1000) / 1000;
+                    oscillator.frequency.setValueAtTime(roundedFreq, now);
+                    
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(gainValue, now + 0.02);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(mainGainNode);
+                    oscillator.start(now);
+
+                    activeOscillators[note] = { 
+                        oscillator: oscillator, 
+                        gainNode: gainNode
+                    };
+                    
+                    if(DEBUG) {
+                        console.log("Note started:", note, "Frequency:", roundedFreq);
+                    }
+                } catch (e) {
+                    console.error("Error playing note:", e);
+                }
+            }
+            
+            // stop
+            function stopDefaultNote(note) {
+                var oscillatorData = activeOscillators[note];
+                
+                try {
+                    var oscillator = oscillatorData.oscillator;
+                    var gainNode = oscillatorData.gainNode;
+                    var now = audioContext.currentTime;
+                    var releaseTime = 0.1; /* Shorter release time for immediate stop */
+                    
+                    gainNode.gain.cancelScheduledValues(now);
+                    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+                    gainNode.gain.linearRampToValueAtTime(0, now + releaseTime);
+
+                    oscillator.stop(now + releaseTime + 0.01);
+                    
+                    /* Immediately remove from active oscillators */
+                    delete activeOscillators[note];
+                    
+                    if(DEBUG) {
+                        console.log("Note stopped:", note);
+                    }
+                } catch (e) {
+                    console.error("Error stopping note:", e);
+                    /* Still remove from active oscillators even if stopping failed */
+                    delete activeOscillators[note];
+                }
+            }
+            
+            // switch
+            function addControls() {
+                document.querySelector('.wave-selector').style.display = 'inline-flex';
+            }
+            
+            // remove
+            function removeControls() {
+                document.querySelector('.wave-selector').style.display = 'none';
+            }
+            
+            // export
+            function createDefaultNoteForWav(context, note, startTime, duration, destination) {
+                var oscillator = context.createOscillator();
+                var gainNode = context.createGain();
+
+                var selectedWave = document.querySelector('.wave-option.selected');
+                oscillator.type = selectedWave ? selectedWave.getAttribute('data-wave-type') : 'sine';
+                oscillator.frequency.value = note.freq;
+
+                // Default envelope for simple synth
+                var attackTime = 0.02;
+                var releaseTime = 0.1;
+                var sustainLevel = 0.7;
+
+                // --- CORRECTED ENVELOPE LOGIC ---
+                // This creates a precise timeline to ensure the release ramp works correctly.
+                gainNode.gain.setValueAtTime(0, startTime); // Start at silence
+                gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime); // Attack
+                gainNode.gain.setValueAtTime(sustainLevel, startTime + duration); // Hold sustain level until note ends
+                gainNode.gain.linearRampToValueAtTime(0, startTime + duration + releaseTime); // Release fade-out
+
+                oscillator.connect(gainNode);
+                gainNode.connect(destination);
+
+                // The oscillator must run for the full duration plus the release tail.
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration + releaseTime);
+            }
+
+
+
+
+
+
+            '8bit': {
+                name: '8-bit',
+                playNote: function(note, freq) {
+                    return play8BitNote(note, freq);
+                },
+                stopNote: function(note) {
+                    return stop8BitNote(note);
+                },
+                init: function() {
+                    /* Apply Game Boy theme - ONLY BACKGROUND */
+                    document.body.classList.add('gameboy-theme');
+                    
+                    /* Create Game Boy specific controls if needed */
+                    createGameBoyControls();
+                },
+                cleanup: function() {
+                    /* Remove Game Boy theme - ONLY BACKGROUND */
+                    document.body.classList.remove('gameboy-theme');
+                    
+                    /* Remove Game Boy specific controls if they exist */
+                    removeGameBoyControls();
+                }
+            },
+                
+                // play
+                function play8BitNote(note, freq) {
+                try {
+                    var now = audioContext.currentTime;
+                    var gainValue = 0.12;
+
+                    /* Get Game Boy specific parameters */
+                    var waveformSelect = document.getElementById('gameboy-wave');
+                    var noiseSelect = document.getElementById('gameboy-noise');
+                    var attackSlider = document.getElementById('gameboy-attack');
+                    var releaseSlider = document.getElementById('gameboy-release');
+                    
+                    var waveformType = waveformSelect ? waveformSelect.value : 'square';
+                    var noiseType = noiseSelect ? noiseSelect.value : 'white';
+                    var attackTime = attackSlider ? parseFloat(attackSlider.value) : 0.0;
+                    var releaseTime = releaseSlider ? parseFloat(releaseSlider.value) : 0.3;
+
+                    /* Create main oscillator for the note */
+                    var oscillator = audioContext.createOscillator();
+                    var gainNode = audioContext.createGain();
+                    
+                    /* Create noise buffer for Game Boy style */
+                    var noiseBuffer = audioContext.createBufferSource();
+                    var noiseGain = audioContext.createGain();
+                    
+                    /* Create noise buffer */
+                    var bufferSize = audioContext.sampleRate * 2; /* 2 seconds of noise */
+                    var buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                    var output = buffer.getChannelData(0);
+                    
+                    for (var i = 0; i < bufferSize; i++) {
+                        if (noiseType === 'white') {
+                            output[i] = Math.random() * 2 - 1;
+                        } else { /* Pink noise is more complex, we'll fake it with a simple filter */
+                            output[i] = (Math.random() * 2 - 1) * (i / bufferSize); /* A simple lo-fi sweep */
+                        }
+                    }
+                    noiseBuffer.buffer = buffer;
+                    noiseBuffer.loop = true;
+                    
+                    /* Configure oscillator */
+                    oscillator.type = waveformType;
+                    var roundedFreq = Math.round(freq * 1000) / 1000;
+                    oscillator.frequency.setValueAtTime(roundedFreq, now);
+                    
+                    /* Much lower noise volume */
+                    noiseGain.gain.value = 0.005; /* Further reduced */
+                    
+                    /* Connect the audio graph */
+                    oscillator.connect(gainNode);
+                    noiseBuffer.connect(noiseGain);
+                    gainNode.connect(mainGainNode);
+                    noiseGain.connect(mainGainNode);
+                    
+                    /* --- ADSR Envelope --- */
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(gainValue, now + attackTime);
+                    
+                    /* Start the sound */
+                    oscillator.start(now);
+                    noiseBuffer.start(now);
+                    
+                    activeOscillators[note] = { 
+                        oscillator: oscillator, 
+                        gainNode: gainNode,
+                        noiseBuffer: noiseBuffer,
+                        noiseGain: noiseGain,
+                        releaseTime: releaseTime
+                    };
+                    
+                    if(DEBUG) {
+                        console.log("8-bit Note started:", note, "Frequency:", roundedFreq);
+                    }
+                } catch (e) {
+                    console.error("Error playing 8-bit note:", e);
+                }
+            }
+            
+            // stop
+            function stop8BitNote(note) {
+                var oscillatorData = activeOscillators[note];
+                
+                if (!oscillatorData) {
+                    if(DEBUG) {
+                        console.log("8-bit note data missing:", note, oscillatorData);
+                    }
+                    delete activeOscillators[note];
+                    return;
+                }
+                
+                try {
+                    var now = audioContext.currentTime;
+                    /* FIX: Use the release time that was stored when the note was played */
+                    var releaseTime = oscillatorData.releaseTime || 0.3;
+                    
+                    /* Stop all components */
+                    if (oscillatorData.oscillator) {
+                        try {
+                            oscillatorData.oscillator.stop(now + releaseTime);
+                        } catch (e) {
+                            /* Ignore errors */
+                        }
+                    }
+                    
+                    if (oscillatorData.noiseBuffer) {
+                        try {
+                            oscillatorData.noiseBuffer.stop(now + 0.01); /* Stop noise immediately */
+                        } catch (e) {
+                            /* Ignore errors */
+                        }
+                    }
+                    
+                    /* Fade out gains */
+                    if (oscillatorData.gainNode) {
+                        oscillatorData.gainNode.gain.cancelScheduledValues(now);
+                        oscillatorData.gainNode.gain.setValueAtTime(oscillatorData.gainNode.gain.value, now);
+                        oscillatorData.gainNode.gain.linearRampToValueAtTime(0, now + releaseTime);
+                    }
+                    
+                    if (oscillatorData.noiseGain) {
+                        oscillatorData.noiseGain.gain.cancelScheduledValues(now);
+                        oscillatorData.noiseGain.gain.setValueAtTime(oscillatorData.noiseGain.gain.value, now);
+                        oscillatorData.noiseGain.gain.linearRampToValueAtTime(0, now + 0.01);
+                    }
+                    
+                    /* Remove from active oscillators immediately */
+                    delete activeOscillators[note];
+                    
+                    if(DEBUG) {
+                        console.log("8-bit Note stopped:", note, "Release time:", releaseTime);
+                    }
+                } catch (e) {
+                    console.error("Error stopping 8-bit note:", e);
+                    /* Still remove from active oscillators even if stopping failed */
+                    delete activeOscillators[note];
+                }
+            }
+
+            // switch
+            function createGameBoyControls() {
+                /* Create Game Boy specific controls if needed */
+                document.querySelector('.wave-selector').style.display = 'none';
+                var controlBar = document.querySelector('.control-bar');
+                
+                /* Add Game Boy specific controls */
+                var gameboyControls = document.createElement('div');
+                gameboyControls.id = 'gameboy-controls';
+                gameboyControls.style.display = 'inline-flex';
+                gameboyControls.style.marginLeft = '10px';
+                
+                /* Wave Channel control */
+                var waveGroup = document.createElement('div');
+                waveGroup.className = 'control-group';
+                waveGroup.style.marginRight = '10px';
+                
+                var waveLabel = document.createElement('label');
+                waveLabel.textContent = 'Wave';
+                waveLabel.style.marginBottom = '5px';
+                waveLabel.style.fontSize = '0.8em';
+                
+                var waveSelect = document.createElement('select');
+                waveSelect.id = 'gameboy-wave';
+                waveSelect.style.width = '120px';
+                
+                var squareOption = document.createElement('option');
+                squareOption.value = 'square';
+                squareOption.textContent = 'Pulse (50%)';
+                waveSelect.appendChild(squareOption);
+                
+                var sawtoothOption = document.createElement('option');
+                sawtoothOption.value = 'sawtooth';
+                sawtoothOption.textContent = 'Pulse (25%)';
+                waveSelect.appendChild(sawtoothOption);
+                
+                var triangleOption = document.createElement('option');
+                triangleOption.value = 'triangle';
+                triangleOption.textContent = 'Triangle';
+                waveSelect.appendChild(triangleOption);
+                
+                waveGroup.appendChild(waveLabel);
+                waveGroup.appendChild(waveSelect);
+                
+                /* Noise Channel control */
+                var noiseGroup = document.createElement('div');
+                noiseGroup.className = 'control-group';
+                noiseGroup.style.marginRight = '10px';
+                
+                var noiseLabel = document.createElement('label');
+                noiseLabel.textContent = 'Noise';
+                noiseLabel.style.marginBottom = '5px';
+                noiseLabel.style.fontSize = '0.8em';
+                
+                var noiseSelect = document.createElement('select');
+                noiseSelect.id = 'gameboy-noise';
+                noiseSelect.style.width = '120px';
+                
+                var whiteOption = document.createElement('option');
+                whiteOption.value = 'white';
+                whiteOption.textContent = 'White Noise';
+                noiseSelect.appendChild(whiteOption);
+                
+                var pinkOption = document.createElement('option');
+                pinkOption.value = 'pink';
+                pinkOption.textContent = 'Pink Noise';
+                noiseSelect.appendChild(pinkOption);
+                
+                noiseGroup.appendChild(noiseLabel);
+                noiseGroup.appendChild(noiseSelect);
+                
+                /* Attack control */
+                var attackGroup = document.createElement('div');
+                attackGroup.className = 'control-group';
+                attackGroup.style.marginRight = '10px';
+                
+                var attackLabel = document.createElement('label');
+                attackLabel.textContent = 'Attack';
+                attackLabel.id = 'gameboy-attack-label';
+                attackLabel.style.marginBottom = '5px';
+                attackLabel.style.fontSize = '0.8em';
+                
+                var attackSlider = document.createElement('input');
+                attackSlider.type = 'range';
+                attackSlider.id = 'gameboy-attack';
+                attackSlider.min = '0';
+                attackSlider.max = '0.5';
+                attackSlider.step = '0.01';
+                attackSlider.value = '0';
+                attackSlider.style.width = '100px';
+                
+                attackSlider.addEventListener('input', function() {
+                    document.getElementById('gameboy-attack-label').textContent = 'Attack';
+                });
+                
+                attackGroup.appendChild(attackLabel);
+                attackGroup.appendChild(attackSlider);
+                
+                /* Release control */
+                var releaseGroup = document.createElement('div');
+                releaseGroup.className = 'control-group';
+                
+                var releaseLabel = document.createElement('label');
+                releaseLabel.textContent = 'Release';
+                releaseLabel.id = 'gameboy-release-label';
+                releaseLabel.style.marginBottom = '5px';
+                releaseLabel.style.fontSize = '0.8em';
+                
+                var releaseSlider = document.createElement('input');
+                releaseSlider.type = 'range';
+                releaseSlider.id = 'gameboy-release';
+                releaseSlider.min = '0';
+                releaseSlider.max = '1';
+                releaseSlider.step = '0.01';
+                releaseSlider.value = '0.3';
+                releaseSlider.style.width = '100px';
+                
+                releaseSlider.addEventListener('input', function() {
+                    document.getElementById('gameboy-release-label').textContent = 'Release';
+                });
+                
+                releaseGroup.appendChild(releaseLabel);
+                releaseGroup.appendChild(releaseSlider);
+                
+                gameboyControls.appendChild(waveGroup);
+                gameboyControls.appendChild(noiseGroup);
+                gameboyControls.appendChild(attackGroup);
+                gameboyControls.appendChild(releaseGroup);
+                
+                controlBar.appendChild(gameboyControls);
+            }
+
+            // remove
+            function removeGameBoyControls() {
+                var gameboyControls = document.getElementById('gameboy-controls');
+                if (gameboyControls) {
+                    gameboyControls.parentNode.removeChild(gameboyControls);
+                }
+                
+                document.querySelector('.wave-selector').style.display = 'inline-flex';
+            }
+
+            // export
+function create8BitNoteForWav(context, note, startTime, duration, destination) {
+                var waveformSelect = document.getElementById('gameboy-wave');
+                var noiseSelect = document.getElementById('gameboy-noise');
+                var attackSlider = document.getElementById('gameboy-attack');
+                var releaseSlider = document.getElementById('gameboy-release');
+
+                var waveformType = waveformSelect ? waveformSelect.value : 'square';
+                var noiseType = noiseSelect ? noiseSelect.value : 'white';
+                var attackTime = attackSlider ? parseFloat(attackSlider.value) : 0.0;
+                var releaseTime = releaseSlider ? parseFloat(releaseSlider.value) : 0.3;
+                var sustainLevel = 0.7;
+
+                var oscillator = context.createOscillator();
+                var gainNode = context.createGain();
+                var noiseBuffer = context.createBufferSource();
+                var noiseGain = context.createGain();
+
+                var bufferSize = context.sampleRate * 0.5;
+                var buffer = context.createBuffer(1, bufferSize, context.sampleRate);
+                var output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) {
+                    output[i] = (Math.random() * 2 - 1) * (noiseType === 'white' ? 1 : i / bufferSize);
+                }
+                noiseBuffer.buffer = buffer;
+
+                oscillator.type = waveformType;
+                oscillator.frequency.value = note.freq;
+                noiseGain.gain.value = 0.02;
+
+                // --- CORRECTED ENVELOPE LOGIC ---
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(sustainLevel, startTime + attackTime);
+                gainNode.gain.setValueAtTime(sustainLevel, startTime + duration);
+                gainNode.gain.linearRampToValueAtTime(0, startTime + duration + releaseTime);
+
+                oscillator.connect(gainNode);
+                noiseBuffer.connect(noiseGain);
+                gainNode.connect(destination);
+                noiseGain.connect(destination);
+
+                // Extend the stop time for both oscillator and noise to allow for the release tail.
+                oscillator.start(startTime);
+                noiseBuffer.start(startTime);
+                oscillator.stop(startTime + duration + releaseTime);
+                noiseBuffer.stop(startTime + duration + releaseTime);
+            }

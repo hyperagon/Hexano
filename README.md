@@ -8,7 +8,7 @@ A single note hexagonal piano.
 - Replays what was recorded like a piano roll
 - Can *Import* and *Export* a melody to a *JSON* file
 - Let's you *Import Audio* where it tries to guess the melody
-- Contsind several Instruments
+- Contains several Instruments
 
 ### Examples ([emoji from here](https://getemoji.com/#symbols))
 - [Keyboard Cat](https://www.youtube.com/watch?v=J---aiyznGQ): 🔴🟢🟣🟢🔴🟢🟣🟢...

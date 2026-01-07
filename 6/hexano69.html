@@ -3,6 +3,21 @@
     
     Human Intervention:
         Did the convertion myself since it's too much for an LLM.
+        
+    fix this
+
+    Only the Default instrument works, all others give similar errors.
+    
+    Human Intervention:
+        Made all playNote's re-initialize the AudioContext if missing:
+        
+        // FIX: Ensure mainGainNode is initialized
+        if (!mainGainNode || mainGainNode.context !== audioContext) {
+            if (!audioContext) return; 
+            mainGainNode = audioContext.createGain();
+            mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+            mainGainNode.connect(audioContext.destination);
+        }
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -598,17 +613,6 @@
         // Global storage for active nodes, accessible to all instruments
         var activeOscillators = {};
 
-        // Base Factory for creating instrument objects
-        var InstrumentFactory = {
-            create: function(name) {
-                return {
-                    name: name,
-                    type: 'Instrument',
-                    activeNodes: activeOscillators // Reference global storage
-                };
-            }
-        };
-
         var DEBUG = false;
         document.addEventListener('DOMContentLoaded', function() {
             /* --- DOM ELEMENTS --- */
@@ -698,6 +702,17 @@
             /* --- INSTRUMENT SYSTEM --- */
             var currentInstrumentInstance = null;
 
+            // Base Factory for creating instrument objects
+            var InstrumentFactory = {
+                create: function(name) {
+                    return {
+                        name: name,
+                        type: 'Instrument',
+                        activeNodes: activeOscillators // Reference global storage
+                    };
+                }
+            };
+
             var DefaultInstrument = {
                 create: function() {
                     var inst = InstrumentFactory.create('Default');
@@ -709,6 +724,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var gainValue = 0.15;
 
                             var oscillator = audioContext.createOscillator();
@@ -807,6 +831,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var gainValue = 0.12;
 
                             var waveformSelect = document.getElementById('gameboy-wave');
@@ -972,6 +1005,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var gainValue = 0.25;
 
                             var typeSelect = document.getElementById('guitar-type');
@@ -1189,6 +1231,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var gainValue = 0.15;
 
                             var instrumentSelect = document.getElementById('snes-instrument');
@@ -1467,6 +1518,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var gainValue = 0.5;
 
                             var typeSelect = document.getElementById('drums-type');
@@ -1747,6 +1807,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var decaySlider = document.getElementById('bell-decay');
                             var brightnessSlider = document.getElementById('bell-brightness');
 
@@ -1931,6 +2000,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var breathSlider = document.getElementById('flute-breath');
                             var vibratoSlider = document.getElementById('flute-vibrato');
                             
@@ -2133,6 +2211,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var attackSlider = document.getElementById('violin-attack');
                             var vibratoSlider = document.getElementById('violin-vibrato');
                             var filterSlider = document.getElementById('violin-filter');
@@ -2365,6 +2452,15 @@
                     inst.playNote = function(note, freq) {
                         try {
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
+                            
                             var decaySlider = document.getElementById('ukulele-decay');
                             var nylonSlider = document.getElementById('ukulele-nylon');
 
@@ -2543,6 +2639,14 @@
                             if (!window.customSampleBuffer) return;
 
                             var now = audioContext.currentTime;
+                                                
+                            // FIX: Ensure mainGainNode is initialized
+                            if (!mainGainNode || mainGainNode.context !== audioContext) {
+                                if (!audioContext) return; 
+                                mainGainNode = audioContext.createGain();
+                                mainGainNode.gain.value = volumeSlider ? volumeSlider.value : 0.5;
+                                mainGainNode.connect(audioContext.destination);
+                            }
 
                             // 1. Source
                             var source = audioContext.createBufferSource();
@@ -5259,3 +5363,4 @@
     </div>
 </body>
 </html>
+

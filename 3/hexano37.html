@@ -1,6 +1,7 @@
 <!--
 Human Intervention
     - Copied the "// --- WAV EXPORT ---" from v4
+    - Changed the output to hexano.wav
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -3347,7 +3348,7 @@ function findNearestNote(frequency) {
 
                     offlineContext.startRendering().then(function(renderedBuffer) {
                         var wavBlob = bufferToWave(renderedBuffer);
-                        downloadBlob(wavBlob, 'hexagon.wav');
+                        downloadBlob(wavBlob, 'hexano.wav');
                     }).catch(function(e) {
                         console.error("Failed to render WAV:", e);
                         alert("Sorry, there was an error creating the audio file.");

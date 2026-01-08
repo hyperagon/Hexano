@@ -7,6 +7,7 @@ Human Intervention
     - Improved the Square wave button
     - Made sure that Fullscreen button sticks to volume
     - Styled the hexboard to rotate if portrait mode (height > width), unfortunately it doesn't scale properly when rotated.
+    - Changed the output to hexano.wav
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -1971,7 +1972,7 @@ notesByNoteName[noteData.note].push(polygon);
 
                     offlineContext.startRendering().then(function(renderedBuffer) {
                         var wavBlob = bufferToWave(renderedBuffer);
-                        downloadBlob(wavBlob, 'hexagon.wav');
+                        downloadBlob(wavBlob, 'hexano.wav');
                     }).catch(function(e) {
                         console.error("Failed to render WAV:", e);
                         alert("Sorry, there was an error creating the audio file.");

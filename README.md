@@ -1,8 +1,8 @@
 # Hexano
-A single note hexagonal piano.
+An hexagonal piano.
 
 - Vibe coded but it required me to correct several things
-- Everything is packed into a single *HTML* file
+- Everything is packedn into a single *HTML* file
 - Let's you pick different kinds of Wave
 - Records the output into a *WAV* file
 - Replays what was recorded like a piano roll

@@ -1,4 +1,6 @@
 # Hexano
+### [Hexagonal Piano](https://hyperagon.github.io/projects/hexano/)
+
 A piano with hexagonal keys. Vibe coded but it required me to correct several things
 
 

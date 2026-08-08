@@ -1,5 +1,5 @@
-# Hexano
-### [Hexagonal Piano](https://hyperagon.github.io/projects/hexano/)
+# [Hexano](https://hyperagon.github.io/projects/hexano/)
+### Hexagonal Piano
 
  Vibe coded piano with hexagonal keys.
 
